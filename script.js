@@ -13,7 +13,7 @@ async function fetchGameList(){
 
 	console.log(platforms);
 
-    const fetchStr = `${API_URL}${API_GAMES}?api_key=${API_KEY}&${API_TO_JSON}&filter=aliases:${myInput}`;
+    const fetchStr = `${API_URL}${API_GAMES}?api_key=${API_KEY}&${API_TO_JSON}&filter=name:${myInput}`;
 
     console.log(fetchStr);
 
@@ -49,21 +49,26 @@ async function fetchGameList(){
 
 		let too_many_plats = false;
 
-		for (let j = 0; j < listeJeux[i].platforms.length; j++){
+		if (listeJeux[i].platforms != null) {
 
-			if (j >= 4){
-				let remaining = listeJeux[i].platforms.length - j;
-				platforms_html += `</div><a>+ ${remaining} autres</a>`;
-				too_many_plats = true;
-				break;
+			for (let j = 0; j < listeJeux[i].platforms.length; j++){
+
+				if (j >= 4){
+					let remaining = listeJeux[i].platforms.length - j;
+					platforms_html += `</div><a>+ ${remaining} autres</a>`;
+					too_many_plats = true;
+					break;
+				}
+
+				platforms_html += `<img src='${platforms[listeJeux[i].platforms[j].name]}' alt='${listeJeux[i].platforms[j].name}'
+				title='${listeJeux[i].platforms[j].name}'>`
 			}
 
-			platforms_html += `<img src='${platforms[listeJeux[i].platforms[j].name]}' alt='${listeJeux[i].platforms[j].name}'
-			title='${listeJeux[i].platforms[j].name}'>`
-		}
-
-		if (!too_many_plats){
-			platforms_html += '</div>';
+			if (!too_many_plats){
+				platforms_html += '</div>';
+			}
+		} else {
+			platforms_html += '<a> Aucune plateforme trouvée </a></div>';
 		}
 		
 		new_html +=
