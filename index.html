@@ -7,7 +7,7 @@
 		<script src="script.js"></script>
 	</head>
 	<body>
-        <header>
+        <header class="flexBordered">
             <div class="headerImgDiv">
                 <img src="logo.png" alt="Logo">
             </div>
@@ -18,9 +18,9 @@
 		</header>
 
         <main>
-            <nav>
+            <nav class="flexBordered">
 				<div class="searchDiv">
-                    <input type="text" placeholder="Recherche" name="searchInput">
+                    <input type="text" placeholder="Recherche" name="searchInput" id="searchInput">
                     <button class="bouton searchButton">Valider</button>
                 </div>
                 <div class="favDiv">
@@ -28,9 +28,22 @@
                 </div>
 			</nav>
 
-            <section class="sectionPage">
+            <section class="flexBordered sectionPage">
 				<p class="pSelectPage">Sélectionnez une catégorie</p>
 			</section>
         </main>
+
+        <footer class="flexBordered">
+			<div class="footerDevDiv">
+                <a class="footerDevText">Développé par Cédric Simar</p>
+                <a class="footerDevMail">cedric.simar@supdevinci-edu.fr</p>
+            </div>
+            <div class="footerGiantBombDiv">
+                <a class="footerGiantBombText" href="https://www.giantbomb.com/">Lien vers GiantBomb</p>
+            </div>
+            <div class="footerSDVDiv">
+                <a class="footerSDVText" href="https://www.supdevinci.fr/">Lien vers Sup de Vinci</p>
+            </div>
+		</footer>
 	</body>
 </html>
