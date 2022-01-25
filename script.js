@@ -5,13 +5,50 @@ const API_PLATFORMS = "platforms/"
 const API_KEY = "7a29a0a7f45e106ee6a5aa46aba6feee440588b1";
 const API_TO_JSON = "format=json";
 
+var globalPlatforms;
+
+function generatePlatformHTML(gamePlatforms){
+	let platforms_html = '<div>';
+
+	let too_many_plats = false;
+
+	if (gamePlatforms != null) {
+
+		for (let j = 0; j < gamePlatforms.length; j++){
+
+			if (j >= 4){
+				let remaining = gamePlatforms.length - j;
+				platforms_html += `</div><a>+ ${remaining} autres</a>`;
+				too_many_plats = true;
+				break;
+			}
+
+			platforms_html += `<img src='${globalPlatforms[gamePlatforms[j].name]}' alt='${gamePlatforms[j].name}'
+								title='${gamePlatforms[j].name}'>`
+		}
+
+		if (!too_many_plats){
+			platforms_html += '</div>';
+		}
+
+	} else {
+		platforms_html += '<a> Aucune plateforme trouvée </a></div>';
+	}
+
+	return platforms_html;
+}
+
 async function fetchGameList(){
+
+	const sectionPage = document.querySelector(".sectionPage");
+
+	displayLoader(sectionPage);
 
 	const myInput = document.getElementById('searchInput').value;
 
-	const platforms = await loadPlatforms();
+	globalPlatforms = await loadPlatforms();
 
-	console.log(platforms);
+	console.log(globalPlatforms);
 
     const fetchStr = `${API_URL}${API_GAMES}?api_key=${API_KEY}&${API_TO_JSON}&filter=name:${myInput}`;
 
@@ -29,62 +66,28 @@ async function fetchGameList(){
     
 	console.log(listeJeux);
 
-	const sectionPage = document.querySelector(".sectionPage");
+	// Generate HTML from game list
 
-	let openedDiv = false;
+	sectionPage.innerHTML = '';
 
-	let new_html = '';
+	let currBigDiv;
 
 	for (let i = 0; i < listeJeux.length; i++){
 
 		if (i%3 == 0){
-			if (openedDiv){
-				new_html += `</div>`;
-			}
-			new_html += `<div class='multiGameDiv'>`;
-			openedDiv = true;
+			currBigDiv = document.createElement('div');
+			currBigDiv.classList.add("multiGameDiv");
+			sectionPage.append(currBigDiv);
 		}
 
-		let platforms_html = '<div>';
+		let jeu = new Jeu(listeJeux[i], sectionPage);
 
-		let too_many_plats = false;
+		let newDiv = jeu.divCustom.div;
 
-		if (listeJeux[i].platforms != null) {
-
-			for (let j = 0; j < listeJeux[i].platforms.length; j++){
-
-				if (j >= 4){
-					let remaining = listeJeux[i].platforms.length - j;
-					platforms_html += `</div><a>+ ${remaining} autres</a>`;
-					too_many_plats = true;
-					break;
-				}
-
-				platforms_html += `<img src='${platforms[listeJeux[i].platforms[j].name]}' alt='${listeJeux[i].platforms[j].name}'
-				title='${listeJeux[i].platforms[j].name}'>`
-			}
-
-			if (!too_many_plats){
-				platforms_html += '</div>';
-			}
-		} else {
-			platforms_html += '<a> Aucune plateforme trouvée </a></div>';
-		}
-		
-		new_html +=
-			`<div class='flexBordered gameDiv'>
-				<img src='${listeJeux[i].image.screen_url}'>
-				${platforms_html}
-				<p> ${listeJeux[i].name} </p>
-			</div>`;
+		currBigDiv.append(newDiv);
 
 	}
 
-	if (openedDiv){
-		new_html += `</div>`;
-	}
-
-	sectionPage.innerHTML = new_html;
 
 	console.log(listeJeux.length);
 }
@@ -135,14 +138,94 @@ let init = () => {
 
 window.onload = init;
 
+class Jeu {
+	name;
+	image;
+	image_small;
+	platforms;
+	divCustom;
+	constructor(jeu, sectionPage){
+		this.name = jeu.name;
+		this.image = jeu.image.screen_url;
+		this.image_small = jeu.image.small_url;
+		this.platforms = jeu.platforms;
+
+
+		let onclick = function(jeu) {
+			displayGame(sectionPage, jeu);
+		}
+
+		this.divCustom = new DivSelectionJeu(this, onclick);
+	}
+}
+
+class DivSelectionJeu {
+	div;
+
+	constructor(jeu, callbackClick) {
+		const divJeu = document.createElement("div");
+		divJeu.classList.add("gameDiv");
+		divJeu.classList.add("flexBordered");
+
+		let premiereLigne = `<img src='${jeu.image}'>`;
+		let deuxiemeLigne = generatePlatformHTML(jeu.platforms);
+		let troisiemeLigne = `<p> ${jeu.name} </p>`;
+
+
+		divJeu.innerHTML = `
+			${premiereLigne}
+			${deuxiemeLigne}
+			${troisiemeLigne}
+		`;
 
 
 
+		if (callbackClick) {
+			divJeu.onclick = () => {
+				callbackClick(jeu);
+			};
+		}
+		this.div = divJeu;
+	}
+}
+
+function displayLoader(sectionPage){
+	sectionPage.innerHTML = "";
+	const loader = document.createElement("div");
+	loader.classList.add("loader");
+	
+	sectionPage.append(loader);
+}
 
 
+function displayGame(sectionPage, jeu){
+	sectionPage.innerHTML = "";
 
+	gameDiv = document.createElement('div');
+	gameDiv.classList.add("gamePage");
 
+	let platforms_html = generatePlatformHTML(jeu.platforms);
 
+	gameDiv.innerHTML = `
+		<div class='topRow'>
+			<p> ${jeu.name} </p>
+			<img src='${jeu.image_small}'>
+		</div>
+		<div class='secondRow'>
+			${platforms_html}
+			<p> Date! </p>
+		</div>
+		<div class='shortDescRow'>
+			<p> Lorem ipsum </p>
+		</div>
+		<div class='longDescRow'>
+			<p> Lorem ipsum blabla dksjhffjsdh dfsjkhfdlh fdkdhslkjf fsdljdslk dslkjdflkj</p>
+		</div>
+	`
+
+	sectionPage.append(gameDiv);
+
+}
 
 
 
