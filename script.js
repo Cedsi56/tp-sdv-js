@@ -5,6 +5,10 @@ const API_PLATFORMS = "platforms/"
 const API_KEY = "7a29a0a7f45e106ee6a5aa46aba6feee440588b1";
 const API_TO_JSON = "format=json";
 
+var mesJeux;
+
+var theme;
+
 var globalPlatforms;
 
 function generatePlatformHTML(gamePlatforms){
@@ -93,6 +97,8 @@ async function fetchGameList(){
 }
 
 async function loadPlatforms(){
+	if (globalPlatforms) return globalPlatforms;
+
 	let platforms = {};
 
 	let offset = -100;
@@ -134,6 +140,23 @@ let init = () => {
 		throw new Error("searchButton introuvable");
 	}
 	searchButton.addEventListener("click", fetchGameList);
+	
+	const favButton = document.querySelector(".favButton");
+	if (!favButton) {
+		throw new Error("favButton introuvable");
+	}
+	favButton.addEventListener("click", displayFav);
+
+	const themeButton = document.querySelector(".themeButton");
+	if (!themeButton) {
+		throw new Error("themeButton introuvable");
+	}
+	themeButton.addEventListener("click", switchTheme);
+
+	mesJeux = chargerMesJeux();
+
+	theme = chargerThemeStocke();
+	sauvegarderTheme();
 }
 
 window.onload = init;
@@ -144,11 +167,53 @@ class Jeu {
 	image_small;
 	platforms;
 	divCustom;
-	constructor(jeu, sectionPage){
+	alreadyReleased;
+	date;
+	shortDesc;
+	longDesc;
+
+	constructor(jeu, sectionPage, fromStorage){
+		if (!fromStorage){
+			this.image = jeu.image.screen_url;
+			this.image_small = jeu.image.small_url;
+
+			if (jeu.original_release_date != null){
+				this.date = jeu.original_release_date;
+				this.alreadyReleased = true;
+			} else {
+				this.alreadyReleased = false;
+				if (jeu.expected_release_year != null) {
+					this.date = jeu.expected_release_year;
+				} else {
+					this.date = "Date de sortie inconnue"
+				}
+			}
+
+			if (jeu.deck != null) {
+				this.shortDesc = jeu.deck;
+			} else {
+				this.shortDesc = 'Pas de résumé disponible.';
+			}
+			
+			if (jeu.description != null) {
+				this.longDesc = jeu.description;
+			} else {
+				this.longDesc = "Pas de description disponible";
+			}
+		} else {
+			this.image = jeu.image;
+			this.image_small = jeu.image_small;
+			this.alreadyReleased = jeu.alreadyReleased;
+			this.date = jeu.date;
+			this.shortDesc = jeu.shortDesc;
+			this.longDesc = jeu.longDesc;
+		}
 		this.name = jeu.name;
-		this.image = jeu.image.screen_url;
-		this.image_small = jeu.image.small_url;
 		this.platforms = jeu.platforms;
+
+
+		
+
 
 
 		let onclick = function(jeu) {
@@ -189,6 +254,49 @@ class DivSelectionJeu {
 	}
 }
 
+async function displayFav(){
+	const sectionPage = document.querySelector(".sectionPage");
+	// Generate HTML from game list
+
+	if (mesJeux.size > 0){
+
+		displayLoader(sectionPage);
+
+		globalPlatforms = await loadPlatforms();
+
+		console.log(globalPlatforms);
+		
+		sectionPage.innerHTML = '';
+
+		let currBigDiv;
+
+		let i = 0;
+
+		mesJeux.forEach(unJeu =>{
+			if (i%3 == 0){
+				currBigDiv = document.createElement('div');
+				currBigDiv.classList.add("multiGameDiv");
+				sectionPage.append(currBigDiv);
+			}
+			i++;
+
+			let jeu = new Jeu(unJeu, sectionPage, true);
+	
+			let newDiv = jeu.divCustom.div;
+	
+			currBigDiv.append(newDiv);
+		});
+	
+
+	} else {
+		sectionPage.innerHTML = `<div>
+									<h2> C'est vide ici, ajoutez des favoris pour qu'ils apparaissent! </h2>
+								</div>`;
+	}
+
+	
+}
+
 function displayLoader(sectionPage){
 	sectionPage.innerHTML = "";
 	const loader = document.createElement("div");
@@ -201,43 +309,141 @@ function displayLoader(sectionPage){
 function displayGame(sectionPage, jeu){
 	sectionPage.innerHTML = "";
 
-	gameDiv = document.createElement('div');
+	let gameDiv = document.createElement('div');
 	gameDiv.classList.add("gamePage");
 
 	let platforms_html = generatePlatformHTML(jeu.platforms);
 
+	let releaseTxt = jeu.alreadyReleased ? "Sortie : " : "Sortie prévue : ";
+
 	gameDiv.innerHTML = `
 		<div class='topRow'>
-			<p> ${jeu.name} </p>
+			<h2> ${jeu.name} </h2>
 			<img src='${jeu.image_small}'>
 		</div>
 		<div class='secondRow'>
-			${platforms_html}
-			<p> Date! </p>
+			<div>
+				${platforms_html}
+			</div>
+			<p> ${releaseTxt}
+			<br>
+			${jeu.date}
+			</p>
 		</div>
 		<div class='shortDescRow'>
-			<p> Lorem ipsum </p>
+			<p> ${jeu.shortDesc} </p>
 		</div>
 		<div class='longDescRow'>
-			<p> Lorem ipsum blabla dksjhffjsdh dfsjkhfdlh fdkdhslkjf fsdljdslk dslkjdflkj</p>
+			<p> ${jeu.longDesc} </p>
 		</div>
+
 	`
+
+	let addFavButton = document.createElement('button');
+	addFavButton.classList.add("bouton");
+	addFavButton.classList.add("addFavButton");
+
+	const addToFav = "Ajouter aux favoris";
+	const rmFromFav = "Retirer des favoris";
+
+	addFavButton.innerHTML = jeuDansFavoris(jeu) ? rmFromFav : addToFav;
+
+	addFavButton.onclick = () => {
+		let dansFav = jeuDansFavoris(jeu);
+		if (dansFav){
+			retirerDesFavoris(jeu);
+			addFavButton.innerHTML = addToFav;
+		} else {
+			ajouterAuxFavoris(jeu);
+			addFavButton.innerHTML = rmFromFav;
+		}
+		displayPopup(dansFav, sectionPage);
+	}
+
+	gameDiv.append(addFavButton);
 
 	sectionPage.append(gameDiv);
 
 }
 
+function displayPopup(dansFav, sectionPage){
+	let txt = dansFav ? "Le jeu a bien été supprimé des favoris." : "Le jeu a été ajouté aux favoris.";
+
+	let popup = document.createElement('div');
+	popup.classList.add("popup");
+
+	popup.innerHTML =  `<div class='popup-content'>
+							<span class="close">&times;</span>
+							<p> ${txt} </p>
+						</div>`;
+	
+
+	sectionPage.append(popup);
+
+	let closeBtn = document.querySelector(".close");
+	closeBtn.onclick = () => {
+		popup.remove();
+	}
+}
 
 
+function jeuDansFavoris(jeu){
+	return mesJeux.has(jeu.name);
+}
 
 
+function ajouterAuxFavoris(jeu){
+	console.log("Ajouter aux favoris",jeu);
+	mesJeux.set(jeu.name, jeu);
+	console.log(mesJeux);
+	sauvegarderMesJeux();
+}
+
+function retirerDesFavoris(jeu){
+	mesJeux.delete(jeu.name);
+	sauvegarderMesJeux();
+}
 
 
+function sauvegarderMesJeux(){
+	const tableauMesJeux = Array.from(mesJeux.values());
+	window.localStorage.setItem("mesJeux", JSON.stringify(tableauMesJeux));
+}
+
+function chargerMesJeux(){
+	mesJeux = new Map();
+	const json = window.localStorage.getItem("mesJeux");
+	if (json) {
+		const jeux = JSON.parse(json);
+		jeux.forEach(unJeu=>{
+			mesJeux.set(unJeu.name, unJeu);
+		});
+	}
+	console.log(mesJeux);
+	return mesJeux;
+}
+
+function chargerThemeStocke(){
+	theme = 'light';
+	const json = window.localStorage.getItem("theme");
+	if (json) {
+		const storedTheme = JSON.parse(json);
+		theme = storedTheme == 'light' || storedTheme == 'dark' ? storedTheme : theme;
+	}
+	console.log(theme);
+	return theme;
+}
+
+function sauvegarderTheme(){
+	document.documentElement.setAttribute("data-theme", theme);
+	window.localStorage.setItem("theme", JSON.stringify(theme));
+}
 
 
-
-
-
+function switchTheme(){
+	theme = theme == 'light' ? 'dark' : 'light';
+	sauvegarderTheme(); 
+}
 
 
 
