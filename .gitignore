@@ -111,7 +111,6 @@ target/
 !**/src/test/**/target/
 
 ### STS ###
-.apt_generated
 .classpath
 .factorypath
 .project
