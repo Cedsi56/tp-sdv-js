@@ -1,0 +1,97 @@
+[data-theme="light"] {
+    --background-color: #FFFFFF;
+    --text-color: #000000;
+    --border-color: #000000;
+    --input-background: #fefefe;
+    --input-color: #404040;
+}
+
+
+[data-theme="dark"] {
+    --background-color: #3F3F3F;
+    --text-color: #fff;
+    --border-color: #fff;
+    --input-background: #404040;
+    --input-color: #fefefe;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+
+	margin: auto;
+	max-width: 900px;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+html, body {
+	min-height: 100vh;
+	max-height: 100vh;
+}
+
+header {
+    display: inline-flex;
+    justify-content: flex-start;
+}
+
+header > div {
+    max-height: 200px;
+}
+
+main > nav {
+    display: inline-flex;
+    justify-content: space-between;
+}
+
+
+main > section {
+    display: inline-flex;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+footer {
+    display: inline-flex;
+
+    justify-content: space-between;
+    align-items: center;
+}
+
+footer > div {
+    margin: auto;
+    text-align: center;
+}
+
+footer > div > a {
+    color: var(--text-color);
+}
+
+.headerImgDiv {
+    display: flex;
+    height: 100%;
+}
+
+.headerImgDiv > img {
+    object-fit: scale-down;
+}
+
+.sectionPage {
+    display: block;
+    text-align: center;
+    position: relative;
+    min-height: 20rem;
+}
+
+input {
+    background-color: var(--input-background);
+    color: var(--input-color);
+}
+
+.pSelectPage {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+}
