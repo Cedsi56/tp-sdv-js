@@ -1,96 +1,3 @@
-class DivSelectionJeu {
-	div;
-
-	constructor(jeu, callbackClick) {
-		const divJeu = document.createElement("div");
-		divJeu.classList.add("gameDiv");
-		divJeu.classList.add("flexBordered");
-
-		let premiereLigne = `<img src='${jeu.image}'>`;
-		let deuxiemeLigne = ListeJeux.generatePlatformHTML(jeu.platforms);
-		let troisiemeLigne = `<p> ${jeu.name} </p>`;
-
-
-		divJeu.innerHTML = `
-			${premiereLigne}
-			${deuxiemeLigne}
-			${troisiemeLigne}
-		`;
-
-
-
-		if (callbackClick) {
-			divJeu.onclick = () => {
-				callbackClick(jeu);
-			};
-		}
-		this.div = divJeu;
-	}
-}
-
-class Jeu {
-	name;
-	image;
-	image_small;
-	platforms;
-	divCustom;
-	alreadyReleased;
-	date;
-	shortDesc;
-	longDesc;
-
-	constructor(jeu, sectionPage, fromStorage){
-		if (!fromStorage){
-			this.image = jeu.image.screen_url;
-			this.image_small = jeu.image.small_url;
-
-			if (jeu.original_release_date != null){
-				this.date = jeu.original_release_date;
-				this.alreadyReleased = true;
-			} else {
-				this.alreadyReleased = false;
-				if (jeu.expected_release_year != null) {
-					this.date = jeu.expected_release_year;
-				} else {
-					this.date = "Date de sortie inconnue";
-				}
-			}
-
-			if (jeu.deck != null) {
-				this.shortDesc = jeu.deck;
-			} else {
-				this.shortDesc = 'Pas de résumé disponible.';
-			}
-			
-			if (jeu.description != null) {
-				this.longDesc = jeu.description;
-			} else {
-				this.longDesc = "Pas de description disponible";
-			}
-		} else {
-			this.image = jeu.image;
-			this.image_small = jeu.image_small;
-			this.alreadyReleased = jeu.alreadyReleased;
-			this.date = jeu.date;
-			this.shortDesc = jeu.shortDesc;
-			this.longDesc = jeu.longDesc;
-		}
-		this.name = jeu.name;
-		this.platforms = jeu.platforms;
-
-
-		
-
-
-
-		let onclick = function(jeu) {
-			ListeJeux.displayGame(sectionPage, jeu);
-		};
-
-		this.divCustom = new DivSelectionJeu(this, onclick);
-	}
-}
-
 class DAO {
 
     static #mesJeux = new Map();
@@ -197,11 +104,6 @@ class DAO {
     }
 
     static async fetchGameList(){
-
-        const sectionPage = document.querySelector(".sectionPage");
-    
-        App.displayLoader(sectionPage);
-
         await this.loadPlatforms();
     
         const myInput = document.getElementById('searchInput').value;
@@ -214,29 +116,7 @@ class DAO {
     
         const listeJeux = jsonRequeteListe.results;
     
-        // Generate HTML from game list
-    
-        sectionPage.innerHTML = '';
-    
-        let currBigDiv;
-    
-        for (let i = 0; i < listeJeux.length; i++){
-    
-            if (i%3 == 0){
-                currBigDiv = document.createElement('div');
-                currBigDiv.classList.add("multiGameDiv");
-                sectionPage.append(currBigDiv);
-            }
-    
-            let jeu = new Jeu(listeJeux[i], sectionPage);
-    
-            let newDiv = jeu.divCustom.div;
-    
-            currBigDiv.append(newDiv);
-    
-        }
-    
-    
+        return listeJeux;
     }
 
     static mesJeuxEmpty(){
@@ -246,7 +126,8 @@ class DAO {
 }
 
 class Popup {
-    static displayPopup(dansFav, sectionPage){
+    static displayPopup(dansFav){
+        const sectionPage = App.sectionPage;
         let txt = dansFav ? "Le jeu a bien été supprimé des favoris." : "Le jeu a été ajouté aux favoris.";
     
         let popup = document.createElement('div');
@@ -265,6 +146,99 @@ class Popup {
             popup.remove();
         };
     }
+}
+
+class DivSelectionJeu {
+	div;
+
+	constructor(jeu, callbackClick) {
+		const divJeu = document.createElement("div");
+		divJeu.classList.add("gameDiv");
+		divJeu.classList.add("flexBordered");
+
+		let premiereLigne = `<img src='${jeu.image}'>`;
+		let deuxiemeLigne = ListeJeux.generatePlatformHTML(jeu.platforms);
+		let troisiemeLigne = `<p> ${jeu.name} </p>`;
+
+
+		divJeu.innerHTML = `
+			${premiereLigne}
+			${deuxiemeLigne}
+			${troisiemeLigne}
+		`;
+
+
+
+		if (callbackClick) {
+			divJeu.onclick = () => {
+				callbackClick(jeu);
+			};
+		}
+		this.div = divJeu;
+	}
+}
+
+class Jeu {
+	name;
+	image;
+	image_small;
+	platforms;
+	divCustom;
+	alreadyReleased;
+	date;
+	shortDesc;
+	longDesc;
+
+	constructor(jeu, fromStorage){
+		if (!fromStorage){
+			this.image = jeu.image.screen_url;
+			this.image_small = jeu.image.small_url;
+
+			if (jeu.original_release_date != null){
+				this.date = jeu.original_release_date;
+				this.alreadyReleased = true;
+			} else {
+				this.alreadyReleased = false;
+				if (jeu.expected_release_year != null) {
+					this.date = jeu.expected_release_year;
+				} else {
+					this.date = "Date de sortie inconnue";
+				}
+			}
+
+			if (jeu.deck != null) {
+				this.shortDesc = jeu.deck;
+			} else {
+				this.shortDesc = 'Pas de résumé disponible.';
+			}
+			
+			if (jeu.description != null) {
+				this.longDesc = jeu.description;
+			} else {
+				this.longDesc = "Pas de description disponible";
+			}
+		} else {
+			this.image = jeu.image;
+			this.image_small = jeu.image_small;
+			this.alreadyReleased = jeu.alreadyReleased;
+			this.date = jeu.date;
+			this.shortDesc = jeu.shortDesc;
+			this.longDesc = jeu.longDesc;
+		}
+		this.name = jeu.name;
+		this.platforms = jeu.platforms;
+
+
+		
+
+
+
+		let onclick = function(jeu) {
+			ListeJeux.displayGame(jeu);
+		};
+
+		this.divCustom = new DivSelectionJeu(this, onclick);
+	}
 }
 
 class ListeJeux {
@@ -304,7 +278,7 @@ class ListeJeux {
     
     
     static async displayFav(){
-        const sectionPage = document.querySelector(".sectionPage");
+        const sectionPage = App.sectionPage;
         // Generate HTML from game list
     
         if (!DAO.mesJeuxEmpty()){
@@ -329,7 +303,7 @@ class ListeJeux {
                 }
                 i++;
     
-                let jeu = new Jeu(unJeu, sectionPage, true);
+                let jeu = new Jeu(unJeu, true);
         
                 let newDiv = jeu.divCustom.div;
         
@@ -345,10 +319,43 @@ class ListeJeux {
     
         
     }
+
+
+    static async displayGameList(){
+        const sectionPage = App.sectionPage;
+
+        App.displayLoader(sectionPage);
+    
+        const listeJeux = await DAO.fetchGameList();
+    
+        // Generate HTML from game list
+    
+        sectionPage.innerHTML = '';
+    
+        let currBigDiv;
+    
+        for (let i = 0; i < listeJeux.length; i++){
+    
+            if (i%3 == 0){
+                currBigDiv = document.createElement('div');
+                currBigDiv.classList.add("multiGameDiv");
+                sectionPage.append(currBigDiv);
+            }
+    
+            let jeu = new Jeu(listeJeux[i]);
+    
+            let newDiv = jeu.divCustom.div;
+    
+            currBigDiv.append(newDiv);
+    
+        }
+    }
     
     
     
-    static displayGame(sectionPage, jeu){
+    static displayGame(jeu){
+        const sectionPage = App.sectionPage;
+
         sectionPage.innerHTML = "";
     
         let gameDiv = document.createElement('div');
@@ -399,7 +406,7 @@ class ListeJeux {
                 DAO.ajouterAuxFavoris(jeu);
                 addFavButton.innerHTML = rmFromFav;
             }
-            Popup.displayPopup(dansFav, sectionPage);
+            Popup.displayPopup(dansFav);
         };
     
         gameDiv.append(addFavButton);
@@ -420,7 +427,7 @@ class App {
         if (!searchButton) {
             throw new Error("searchButton introuvable");
         }
-        searchButton.addEventListener("click", DAO.fetchGameList.bind(DAO));
+        searchButton.addEventListener("click", ListeJeux.displayGameList.bind(ListeJeux));
         
         const favButton = document.querySelector(".favButton");
         if (!favButton) {

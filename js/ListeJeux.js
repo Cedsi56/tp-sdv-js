@@ -40,7 +40,7 @@ export default class ListeJeux {
     
     
     static async displayFav(){
-        const sectionPage = document.querySelector(".sectionPage");
+        const sectionPage = App.sectionPage;
         // Generate HTML from game list
     
         if (!DAO.mesJeuxEmpty()){
@@ -65,7 +65,7 @@ export default class ListeJeux {
                 }
                 i++;
     
-                let jeu = new Jeu(unJeu, sectionPage, true);
+                let jeu = new Jeu(unJeu, true);
         
                 let newDiv = jeu.divCustom.div;
         
@@ -81,10 +81,43 @@ export default class ListeJeux {
     
         
     }
+
+
+    static async displayGameList(){
+        const sectionPage = App.sectionPage;
+
+        App.displayLoader(sectionPage);
+    
+        const listeJeux = await DAO.fetchGameList();
+    
+        // Generate HTML from game list
+    
+        sectionPage.innerHTML = '';
+    
+        let currBigDiv;
+    
+        for (let i = 0; i < listeJeux.length; i++){
+    
+            if (i%3 == 0){
+                currBigDiv = document.createElement('div');
+                currBigDiv.classList.add("multiGameDiv");
+                sectionPage.append(currBigDiv);
+            }
+    
+            let jeu = new Jeu(listeJeux[i]);
+    
+            let newDiv = jeu.divCustom.div;
+    
+            currBigDiv.append(newDiv);
+    
+        }
+    }
     
     
     
-    static displayGame(sectionPage, jeu){
+    static displayGame(jeu){
+        const sectionPage = App.sectionPage;
+
         sectionPage.innerHTML = "";
     
         let gameDiv = document.createElement('div');
@@ -135,7 +168,7 @@ export default class ListeJeux {
                 DAO.ajouterAuxFavoris(jeu);
                 addFavButton.innerHTML = rmFromFav;
             }
-            Popup.displayPopup(dansFav, sectionPage);
+            Popup.displayPopup(dansFav);
         }
     
         gameDiv.append(addFavButton);

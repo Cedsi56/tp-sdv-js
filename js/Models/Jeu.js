@@ -12,7 +12,7 @@ export default class Jeu {
 	shortDesc;
 	longDesc;
 
-	constructor(jeu, sectionPage, fromStorage){
+	constructor(jeu, fromStorage){
 		if (!fromStorage){
 			this.image = jeu.image.screen_url;
 			this.image_small = jeu.image.small_url;
@@ -57,7 +57,7 @@ export default class Jeu {
 
 
 		let onclick = function(jeu) {
-			ListeJeux.displayGame(sectionPage, jeu);
+			ListeJeux.displayGame(jeu);
 		}
 
 		this.divCustom = new DivSelectionJeu(this, onclick);

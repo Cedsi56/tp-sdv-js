@@ -1,6 +1,3 @@
-import App from "./App";
-import Jeu from "./Models/Jeu";
-
 export default class DAO {
 
     static #mesJeux = new Map();
@@ -110,11 +107,6 @@ export default class DAO {
     }
 
     static async fetchGameList(){
-
-        const sectionPage = document.querySelector(".sectionPage");
-    
-        App.displayLoader(sectionPage);
-
         await this.loadPlatforms();
     
         const myInput = document.getElementById('searchInput').value;
@@ -127,29 +119,7 @@ export default class DAO {
     
         const listeJeux = jsonRequeteListe.results;
     
-        // Generate HTML from game list
-    
-        sectionPage.innerHTML = '';
-    
-        let currBigDiv;
-    
-        for (let i = 0; i < listeJeux.length; i++){
-    
-            if (i%3 == 0){
-                currBigDiv = document.createElement('div');
-                currBigDiv.classList.add("multiGameDiv");
-                sectionPage.append(currBigDiv);
-            }
-    
-            let jeu = new Jeu(listeJeux[i], sectionPage);
-    
-            let newDiv = jeu.divCustom.div;
-    
-            currBigDiv.append(newDiv);
-    
-        }
-    
-    
+        return listeJeux;
     }
 
     static mesJeuxEmpty(){

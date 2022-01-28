@@ -1,5 +1,8 @@
+import App from "../App";
+
 export default class Popup {
-    static displayPopup(dansFav, sectionPage){
+    static displayPopup(dansFav){
+        const sectionPage = App.sectionPage;
         let txt = dansFav ? "Le jeu a bien été supprimé des favoris." : "Le jeu a été ajouté aux favoris.";
     
         let popup = document.createElement('div');

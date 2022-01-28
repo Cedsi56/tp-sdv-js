@@ -13,7 +13,7 @@ export default class App {
         if (!searchButton) {
             throw new Error("searchButton introuvable");
         }
-        searchButton.addEventListener("click", DAO.fetchGameList.bind(DAO));
+        searchButton.addEventListener("click", ListeJeux.displayGameList.bind(ListeJeux));
         
         const favButton = document.querySelector(".favButton");
         if (!favButton) {
