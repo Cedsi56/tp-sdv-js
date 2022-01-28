@@ -1,0 +1,33 @@
+.multiGameDiv {
+    flex: 1;
+    display: flex;
+    width: 100%;
+    justify-content: space-evenly;
+}
+
+.multiGameDiv > .gameDiv {
+    width: 30%;
+    height: auto;
+}
+
+.multiGameDiv > .gameDiv > img {
+    object-fit: scale-down;
+    height: auto;
+    width: 100%;
+}
+
+.multiGameDiv > .gameDiv > div {
+    display : inline-flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+}
+
+.gameDiv {
+	cursor: pointer;
+	transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+.gameDiv:hover {
+	background-color: black;
+	color: white;
+	border-color: white;
+}

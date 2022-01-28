@@ -1,4 +1,5 @@
 (function() {
+	console.log("fallback");
 	const fetchOriginal = window.fetch;
 	window.fetch = (input, init)=>{
 		if (input.includes("giantbomb")) {

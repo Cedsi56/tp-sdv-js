@@ -1,5 +1,5 @@
 {
   "dependencies": {
-    "parcel": "^2.2.1"
+    "rollup": "^2.66.1"
   }
 }

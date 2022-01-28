@@ -1,0 +1,18 @@
+.longDescRow {
+    flex-wrap: wrap;
+}
+
+.gamePage {
+    display: block;
+}
+
+.gamePage > div {
+    display: inline-flex;
+    width: 100%;
+    justify-content: space-evenly;
+    padding: 1rem;
+}
+
+.gamePage > div > * {
+    margin: auto;
+}
